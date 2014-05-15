@@ -160,6 +160,7 @@ this.createjs = this.createjs||{};
 		} else {
 			tag.onload = createjs.proxy(this._handleLoad,  this);
 			tag.onreadystatechange = createjs.proxy(this._handleReadyStateChange,  this);
+			tag.onprogress = createjs.proxy(this._handleProgress, this);
 		}
 
 		var src = this.buildPath(item.src, item.values);
@@ -281,6 +282,22 @@ this.createjs = this.createjs||{};
 		if (tag.readyState == "loaded" || tag.readyState == "complete") {
 			this._handleLoad();
 		}
+	};
+	/**
+	 * Handle a progress event. This is called by tag callbacks.
+	 * @method _handleProgress
+	 * @param {Object} [event] A load event from a tag. This is sometimes called from other handlers without an event.
+	 * @private
+	 */
+	p._handleProgress = function(event) {
+		if (this._isCanceled()) { return; }
+
+		var item = this.getItem();
+		var tag = item.tag;
+
+		if (this.loaded || this._isAudio && tag.readyState !== 4) { return; } //LM: Not sure if we still need the audio check.
+
+		this._sendProgress(event);
 	};
 
 	/**
